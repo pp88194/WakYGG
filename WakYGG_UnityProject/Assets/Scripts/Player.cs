@@ -2,17 +2,23 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(Rigidbody2D))]
 public class Player : MonoBehaviour
 {
     [SerializeField] float moveSpeed = 5f;
     Vector2 inputDir;
     Vector2 velocity;
+    Rigidbody2D rigid;
 
     void Move() //FixedUpdate
     {
         transform.position += (Vector3)velocity * Time.fixedDeltaTime;
     }
 
+    private void Awake()
+    {
+        rigid = GetComponent<Rigidbody2D>();
+    }
     private void Update()
     {
         inputDir = Utils.NewVector2(Input.GetAxisRaw("Horizontal"), 0);
