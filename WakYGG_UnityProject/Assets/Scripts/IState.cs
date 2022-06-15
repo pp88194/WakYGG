@@ -2,19 +2,20 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-interface IState
+interface IState<T> where T : MonoBehaviour
 {
-    void OnEnter(Player player);
+    void OnEnter(T instance);
     void Update();
     void OnExit();
 }
 
-public class PlayerState : IState
+public class IPlayerState : IState<Player>
 {
     protected Player player;
     public virtual void OnEnter(Player player)
     {
-        this.player = player;
+        if(this.player == null)
+            this.player = player;
     }
     public virtual void Update()
     {
@@ -26,17 +27,17 @@ public class PlayerState : IState
     }
 }
 
-public class PlayerIdleState : PlayerState
+public class PlayerIdleState : IPlayerState
 {
     public override void Update()
     {
         if (InputSystem.Instance.MoveDir.x != 0)
-            player.SetState(new PlayerMoveState());
+            player.SetState<PlayerMoveState>(nameof(PlayerMoveState));
         player.Rigid.velocity = Utils.NewVector3(player.Rigid.velocity.x * player.HorizonDrag, player.Rigid.velocity.y, 0);
     }
 }
 
-public class PlayerMoveState : PlayerState
+public class PlayerMoveState : IPlayerState
 {
     public override void Update()
     {
@@ -45,12 +46,12 @@ public class PlayerMoveState : PlayerState
     }
 }
 
-public class PlayerJumpState : PlayerState
+public class PlayerJumpState : IPlayerState
 {
     public override void OnEnter(Player player)
     {
         base.OnEnter(player);
         player.Rigid.velocity = Utils.NewVector3(player.Rigid.velocity.x, player.JumpPower);
-        player.SetState(new PlayerIdleState());
+        player.SetState<PlayerIdleState>(nameof(PlayerIdleState));
     }
 }
